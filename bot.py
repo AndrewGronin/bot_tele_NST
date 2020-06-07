@@ -11,12 +11,15 @@ from flask import Flask, request
 import logging
 
 
+
 bot = telebot.TeleBot('1243562156:AAH6ulTBO_9cVxBoyI912y0w23Z7-BftA3c')
 
-environ = {'TELEGRAM_TOKEN':'1243562156:AAH6ulTBO_9cVxBoyI912y0w23Z7-BftA3c'}
+environ = {'TELEGRAM_TOKEN': '1243562156:AAH6ulTBO_9cVxBoyI912y0w23Z7-BftA3c'}
 
 result_storage_path = 'tmp'
-#bot.set_webhook()
+
+
+# bot.set_webhook()
 @bot.message_handler(commands=['start'])
 def start_message(message):
     bot.send_message(message.chat.id, 'Привет, ты написал мне /start')
@@ -32,17 +35,17 @@ def handle(message):
     model = NST()
     model.run_model(image_name)
 
-    res = open('tmp/res.jpg','rb')
+    res = open('tmp/res.jpg', 'rb')
 
-    #photo = open('tmp/1.jpg','rb')
+    # photo = open('tmp/1.jpg','rb')
 
-    #bot.send_photo(cid , image_name[0:-4])#отправляю по коду,-4 чтобы стереть расширение
+    # bot.send_photo(cid , image_name[0:-4])#отправляю по коду,-4 чтобы стереть расширение
 
-    bot.send_photo(cid,res)
+    bot.send_photo(cid, res)
 
-    #bot.reply_to(message, photo)
-    #cleanup_remove_image('res.jpg')
-    cleanup_remove_image(image_name);
+    # bot.reply_to(message, photo)
+    # cleanup_remove_image('res.jpg')
+    cleanup_remove_image(image_name)
 
 
 # ----------- Helper functions ---------------
@@ -87,13 +90,8 @@ def save_image_from_message(message):
     return image_name;
 
 
-
-
-
 def cleanup_remove_image(image_name):
     os.remove('{0}/{1}'.format(result_storage_path, image_name))
-
-
 
 
 '''if "HEROKU" in list(os.environ.keys()):
@@ -116,6 +114,5 @@ else:
     # Удаляем вебхук на всякий случай, и запускаем с обычным поллингом.
     bot.remove_webhook()
     bot.polling()'''
-
 
 bot.polling()
