@@ -257,6 +257,6 @@ class NST(nn.Module):
             input_img = content_img.clone()
 
             output = self.run_style_transfer(
-                                            content_img, style_img, input_img)
+                                            content_img, style_img, input_img , num_steps=50)
 
             self.imsave(output)

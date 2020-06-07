@@ -114,5 +114,5 @@ else:
     # Удаляем вебхук на всякий случай, и запускаем с обычным поллингом.
     bot.remove_webhook()
     bot.polling()'''
-
+#bot.remove_webhook()
 bot.polling()
