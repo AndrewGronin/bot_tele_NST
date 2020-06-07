@@ -96,7 +96,7 @@ def cleanup_remove_image(image_name):
 
 
 
-if "HEROKU" in list(os.environ.keys()):
+'''if "HEROKU" in list(os.environ.keys()):
     logger = telebot.logger
     telebot.logger.setLevel(logging.INFO)
 
@@ -115,7 +115,7 @@ else:
     # если переменной окружения HEROKU нету, значит это запуск с машины разработчика.
     # Удаляем вебхук на всякий случай, и запускаем с обычным поллингом.
     bot.remove_webhook()
-    bot.polling()
+    bot.polling()'''
 
 
-#bot.polling()
+bot.polling()
