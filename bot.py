@@ -29,7 +29,7 @@ def start_message(message):
 @bot.message_handler(content_types=['photo'])
 def handle(message):
     cid = message.chat.id
-    log_request(message)
+    #log_request(message)
 
     image_name = save_image_from_message(message)
 
