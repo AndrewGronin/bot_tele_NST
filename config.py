@@ -1,2 +1,2 @@
-TOKEN = '1243562156:AAH6ulTBO_9cVxBoyI912y0w23Z7-BftA3c'
+TOKEN = '1231051827:AAE0o9ptRhdb23IQFjbGJiiENYNY8ZKlvKs'
 APP_NAME = 'neural-style-transfer-tg-bot'

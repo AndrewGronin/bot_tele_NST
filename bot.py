@@ -7,14 +7,15 @@ import urllib.request
 import subprocess
 import os
 from NST import *
+from config import *
 from flask import Flask, request
 import logging
 
 
 
-bot = telebot.TeleBot('1243562156:AAH6ulTBO_9cVxBoyI912y0w23Z7-BftA3c')
+bot = telebot.TeleBot(TOKEN)
 
-environ = {'TELEGRAM_TOKEN': '1243562156:AAH6ulTBO_9cVxBoyI912y0w23Z7-BftA3c'}
+
 
 result_storage_path = 'tmp'
 
@@ -76,7 +77,7 @@ def save_image_from_message(message):
     file_path = bot.get_file(image_id).file_path
 
     # generate image download url
-    image_url = "https://api.telegram.org/file/bot{0}/{1}".format(environ['TELEGRAM_TOKEN'], file_path)
+    image_url = "https://api.telegram.org/file/bot{0}/{1}".format(TOKEN, file_path)
     print(image_url)
 
     # create folder to store pic temporary, if it doesnt exist
@@ -115,4 +116,4 @@ else:
     bot.remove_webhook()
     bot.polling()'''
 #bot.remove_webhook()
-bot.polling()
+#bot.polling()
