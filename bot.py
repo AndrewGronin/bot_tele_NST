@@ -8,6 +8,7 @@ import subprocess
 import os
 from NST import *
 from config import *
+from telebot import types
 from flask import Flask, request
 import logging
 
@@ -15,7 +16,7 @@ import logging
 
 bot = telebot.TeleBot(TOKEN)
 
-
+photos={}
 
 result_storage_path = 'tmp'
 
@@ -23,30 +24,35 @@ result_storage_path = 'tmp'
 # bot.set_webhook()
 @bot.message_handler(commands=['start'])
 def start_message(message):
-    bot.send_message(message.chat.id, 'Привет, ты написал мне /start')
+    bot.send_message(message.chat.id, 'Привет')
 
 
 @bot.message_handler(content_types=['photo'])
 def handle(message):
     cid = message.chat.id
-    #log_request(message)
+    bot.send_message(message.chat.id, '1 фото')
+    photos['content'] = save_image_from_message(message)
+    bot.register_next_step_handler(message, second_photo)
 
-    image_name = save_image_from_message(message)
+
+def second_photo(message):
+    cid = message.chat.id
+    bot.send_message(message.chat.id, '2 фото')
+
+    photos['style'] = save_image_from_message(message)
+
 
     model = NST()
-    model.run_model(image_name)
+    model.run_model(photos['content'] , photos['style'])
 
     res = open('tmp/res.jpg', 'rb')
 
-    # photo = open('tmp/1.jpg','rb')
 
-    # bot.send_photo(cid , image_name[0:-4])#отправляю по коду,-4 чтобы стереть расширение
 
     bot.send_photo(cid, res)
 
-    # bot.reply_to(message, photo)
-    # cleanup_remove_image('res.jpg')
-    cleanup_remove_image(image_name)
+
+    #cleanup_remove_image(image_name_1)
 
 
 # ----------- Helper functions ---------------
@@ -115,5 +121,5 @@ else:
     # Удаляем вебхук на всякий случай, и запускаем с обычным поллингом.
     bot.remove_webhook()
     bot.polling()'''
-#bot.remove_webhook()
-#bot.polling()
+bot.remove_webhook()
+bot.polling()

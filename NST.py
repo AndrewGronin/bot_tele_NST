@@ -251,12 +251,12 @@ class NST(nn.Module):
 
         return input_img
 
-    def run_model(self, image_name):
-            content_img = self.image_loader("tmp/{}".format(image_name))
-            style_img = self.image_loader('tmp/s1200.jpg')
+    def run_model(self, content , style):
+            content_img = self.image_loader("tmp/{}".format(content))
+            style_img = self.image_loader('tmp/{}'.format(style))
             input_img = content_img.clone()
 
             output = self.run_style_transfer(
-                                            content_img, style_img, input_img , num_steps=50)
+                                            content_img, style_img, input_img , num_steps=300)
 
             self.imsave(output)
