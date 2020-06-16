@@ -223,7 +223,7 @@ class NST(nn.Module):
 
                 return style_score + content_score
 
-            if run[0] == num_steps and (closure().item() > 20):
+            if run[0] == num_steps and (closure().item() > 50):
                 num_steps += 100
 
             optimizer.step(closure)

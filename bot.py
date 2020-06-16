@@ -23,15 +23,18 @@ result_storage_path = 'tmp'
 def start_message(message):
     bot.send_message(message.chat.id,
                      '''Привет, я могу перенести стиль с одной картинки на другую.
-                     Чтобы начать, пришли картинку, на которую будем переносить стиль.
-                     Подробности по команде /help''')
+                     
+Чтобы начать, пришли картинку, на которую будем переносить стиль.
+
+Подробности по команде /help''')
 
 
 @bot.message_handler(commands=['help'])
 def help_message(message):
     bot.send_message(message.chat.id,
                      '''1) Картинки обрезаются до квадратных,размерность понижается
-                     2)Перенос может занять несколько минут(если очень не повезет)
+                     
+2)Перенос может занять несколько минут(если очень не повезет)
                      ''')
 
 
@@ -45,21 +48,24 @@ def handle(message):
 
 
 def second_photo(message):
-    cid = message.chat.id
+    try:
+        cid = message.chat.id
 
-    photos['style'] = save_image_from_message(message)
-    bot.send_message(cid, 'Начинаю перенос, на это уйдет примерно 30 секунд')
+        photos['style'] = save_image_from_message(message)
+        bot.send_message(cid, 'Начинаю перенос, на это уйдет примерно 30 секунд')
 
-    model = NST()
-    model.run_model(photos['content'], photos['style'])
+        model = NST()
+        model.run_model(photos['content'], photos['style'])
 
-    res = open('tmp/res.jpg', 'rb')
+        res = open('tmp/res.jpg', 'rb')
 
-    bot.send_photo(cid, res)
-    bot.send_message(cid, 'Готово, пришли новое фото если хочешь повторить')
+        bot.send_photo(cid, res)
+        bot.send_message(cid, 'Готово, пришли новое фото если хочешь повторить')
 
-    cleanup_remove_image(photos['content'])
-    cleanup_remove_image(photos['style'])
+        cleanup_remove_image(photos['content'])
+        cleanup_remove_image(photos['style'])
+    except:
+        bot.send_message(message.chat.id,'Помоему ты сделал что-то не так, давай сначала')
 
 
 # ----------- Helper functions ---------------
