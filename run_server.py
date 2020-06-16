@@ -3,16 +3,7 @@ from telebot import types
 from config import *
 from bot import bot
 import os
-#https://download.pytorch.org/whl/cpu/torch-1.5.0%2Bcpu-cp36-cp36m-linux_x86_64.whl
-#https://download.pytorch.org/whl/cpu/torchvision-0.6.0%2Bcpu-cp36-cp36m-linux_x86_64.whl
-# https://download.pytorch.org/whl/cpu/torch-1.5.0%2Bcpu-cp37-cp37m-win_amd64.whl (109.2 MB)
- #    |████████████████████████████████| 109.2 MB 65 kB/s
-#Collecting torchvision==0.6.0+cpu
-#  Downloading https://download.pytorch.org/whl/cpu/torchvision-0.6.0%2Bcpu-cp37-cp37m-win_amd64.whl (456 kB)
-#     |████████████████████████████████| 456 kB 6.4 MB/s
-#Collecting numpy
 
-#
 server = flask.Flask(__name__)
 
 

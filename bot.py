@@ -12,47 +12,54 @@ from telebot import types
 from flask import Flask, request
 import logging
 
-
-
 bot = telebot.TeleBot(TOKEN)
 
-photos={}
+photos = {}
 
 result_storage_path = 'tmp'
 
 
-# bot.set_webhook()
 @bot.message_handler(commands=['start'])
 def start_message(message):
-    bot.send_message(message.chat.id, 'Привет')
+    bot.send_message(message.chat.id,
+                     '''Привет, я могу перенести стиль с одной картинки на другую.
+                     Чтобы начать, пришли картинку, на которую будем переносить стиль.
+                     Подробности по команде /help''')
+
+
+@bot.message_handler(commands=['help'])
+def help_message(message):
+    bot.send_message(message.chat.id,
+                     '''1) Картинки обрезаются до квадратных,размерность понижается
+                     2)Перенос может занять несколько минут(если очень не повезет)
+                     ''')
 
 
 @bot.message_handler(content_types=['photo'])
 def handle(message):
     cid = message.chat.id
-    bot.send_message(message.chat.id, '1 фото')
+
     photos['content'] = save_image_from_message(message)
+    bot.send_message(cid, 'Отлично, теперь пришли фото со стилем')
     bot.register_next_step_handler(message, second_photo)
 
 
 def second_photo(message):
     cid = message.chat.id
-    bot.send_message(message.chat.id, '2 фото')
 
     photos['style'] = save_image_from_message(message)
-
+    bot.send_message(cid, 'Начинаю перенос, на это уйдет примерно 30 секунд')
 
     model = NST()
-    model.run_model(photos['content'] , photos['style'])
+    model.run_model(photos['content'], photos['style'])
 
     res = open('tmp/res.jpg', 'rb')
 
-
-
     bot.send_photo(cid, res)
+    bot.send_message(cid, 'Готово, пришли новое фото если хочешь повторить')
 
-
-    #cleanup_remove_image(image_name_1)
+    cleanup_remove_image(photos['content'])
+    cleanup_remove_image(photos['style'])
 
 
 # ----------- Helper functions ---------------
@@ -77,8 +84,6 @@ def save_image_from_message(message):
 
     image_id = get_image_id_from_message(message)
 
-    bot.send_message(cid, '🔥 Analyzing image, be patient ! 🔥')
-
     # prepare image for downlading
     file_path = bot.get_file(image_id).file_path
 
@@ -101,25 +106,5 @@ def cleanup_remove_image(image_name):
     os.remove('{0}/{1}'.format(result_storage_path, image_name))
 
 
-'''if "HEROKU" in list(os.environ.keys()):
-    logger = telebot.logger
-    telebot.logger.setLevel(logging.INFO)
-
-    server = Flask(__name__)
-    @server.route("/bot", methods=['POST'])
-    def getMessage():
-        bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
-        return "!", 200
-    @server.route("/")
-    def webhook():
-        bot.remove_webhook()
-        bot.set_webhook(url="https://neural-style-transfer-tg-bot.herokuapp.com/bot") # этот url нужно заменить на url вашего Хероку приложения
-        return "?", 200
-    server.run(host="0.0.0.0", port=os.environ.get('PORT', 80))
-else:
-    # если переменной окружения HEROKU нету, значит это запуск с машины разработчика.
-    # Удаляем вебхук на всякий случай, и запускаем с обычным поллингом.
-    bot.remove_webhook()
-    bot.polling()'''
 bot.remove_webhook()
 bot.polling()

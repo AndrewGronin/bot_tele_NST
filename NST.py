@@ -31,9 +31,6 @@ class ContentLoss(nn.Module):
         return input
 
 
-
-
-
 class StyleLoss(nn.Module):
     def __init__(self, target_feature):
         super(StyleLoss, self).__init__()
@@ -42,24 +39,21 @@ class StyleLoss(nn.Module):
 
     def gram_matrix(self, input):
         batch_size, h, w, f_map_num = input.size()  # batch size(=1)
-            # b=number of feature maps
-            # (h,w)=dimensions of a feature map (N=h*w)
+        # b=number of feature maps
+        # (h,w)=dimensions of a feature map (N=h*w)
 
         features = input.view(batch_size * h, w * f_map_num)  # resise F_XL into \hat F_XL
 
         G = torch.mm(features, features.t())  # compute the gram product
 
-            # we 'normalize' the values of the gram matrix
-            # by dividing by the number of element in each feature maps.
+        # we 'normalize' the values of the gram matrix
+        # by dividing by the number of element in each feature maps.
         return G.div(batch_size * h * w * f_map_num)
 
     def forward(self, input):
         G = self.gram_matrix(input)
         self.loss = F.mse_loss(G, self.target)
         return input
-
-
-
 
 
 class Normalization(nn.Module):
@@ -76,14 +70,11 @@ class Normalization(nn.Module):
         return (img - self.mean) / self.std
 
 
-
-
-
 # cnn = models.vgg19(pretrained=True).features.to(device).eval()
 
 
 class NST(nn.Module):
-    def __init__(self,imsize = 256):
+    def __init__(self, imsize=256):
         self.imsize = imsize
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -99,21 +90,14 @@ class NST(nn.Module):
             transforms.CenterCrop(self.imsize),
             transforms.ToTensor()])  # превращаем в удобный формат
 
-
-
-
-    def image_loader(self,image_name):
+    def image_loader(self, image_name):
         image = Image.open(image_name)
         image = self.loader(image).unsqueeze(0)
         return image.to(self.device, torch.float)
 
-
     unloader = transforms.ToPILImage()  # тензор в кратинку
 
-
-
-
-    def imsave(self,tensor):
+    def imsave(self, tensor):
         image = tensor.cpu().clone()
         image = image.squeeze(0)  # функция для отрисовки изображения
         image = self.unloader(image)
@@ -121,19 +105,16 @@ class NST(nn.Module):
         image = image.save('tmp/res.jpg')
         return image
 
-
-
-
-
-    def get_style_model_and_losses(self,style_img, content_img,
+    def get_style_model_and_losses(self, style_img, content_img,
                                    ):
-        #cnn = models.vgg19(pretrained=False)
-        #cnn.load_state_dict(torch.load('vgg.pth'))
-        #cnn = cnn.features.to(self.device).eval()
-        #cnn = copy.deepcopy(cnn)
+        # cnn = models.vgg19(pretrained=False)
+        # cnn.load_state_dict(torch.load('vgg.pth'))
+        # cnn = cnn.features.to(self.device).eval()
+        # cnn = copy.deepcopy(cnn)
         cnn = models.vgg19(pretrained=True).features.to(self.device).eval()
         # normalization module
-        normalization = Normalization(self.cnn_normalization_mean_default, self.cnn_normalization_std_default).to(self.device)
+        normalization = Normalization(self.cnn_normalization_mean_default, self.cnn_normalization_std_default).to(
+            self.device)
 
         # just in order to have an iterable access to or list of content/syle
         # losses
@@ -189,13 +170,11 @@ class NST(nn.Module):
 
         return model, style_losses, content_losses
 
-
     def get_input_optimizer(self, input_img):
-            # this line to show that input is a parameter that requires a gradient
-            # добоваляет содержимое тензора катринки в список изменяемых оптимизатором параметров
-            optimizer = optim.LBFGS([input_img.requires_grad_()])
-            return optimizer
-
+        # this line to show that input is a parameter that requires a gradient
+        # добоваляет содержимое тензора катринки в список изменяемых оптимизатором параметров
+        optimizer = optim.LBFGS([input_img.requires_grad_()])
+        return optimizer
 
     def run_style_transfer(self,
                            content_img, style_img, input_img, num_steps=500,
@@ -203,8 +182,8 @@ class NST(nn.Module):
         """Run the style transfer."""
         print('Building the style transfer model..')
         model, style_losses, content_losses = self.get_style_model_and_losses(
-                                                                          style_img,
-                                                                         content_img)
+            style_img,
+            content_img)
         optimizer = self.get_input_optimizer(input_img)
 
         print('Optimizing..')
@@ -244,6 +223,9 @@ class NST(nn.Module):
 
                 return style_score + content_score
 
+            if run[0] == num_steps and (closure().item() > 20):
+                num_steps += 100
+
             optimizer.step(closure)
 
         # a last correction...
@@ -251,12 +233,12 @@ class NST(nn.Module):
 
         return input_img
 
-    def run_model(self, content , style):
-            content_img = self.image_loader("tmp/{}".format(content))
-            style_img = self.image_loader('tmp/{}'.format(style))
-            input_img = content_img.clone()
+    def run_model(self, content, style):
+        content_img = self.image_loader("tmp/{}".format(content))
+        style_img = self.image_loader('tmp/{}'.format(style))
+        input_img = content_img.clone()
 
-            output = self.run_style_transfer(
-                                            content_img, style_img, input_img , num_steps=300)
+        output = self.run_style_transfer(
+            content_img, style_img, input_img, num_steps=500)
 
-            self.imsave(output)
+        self.imsave(output)
