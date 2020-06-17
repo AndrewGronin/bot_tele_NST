@@ -9,6 +9,7 @@ import os
 from NST import *
 from config import *
 from telebot import types
+import upscale
 from flask import Flask, request
 import logging
 
@@ -21,16 +22,24 @@ result_storage_path = 'tmp'
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
+    keyboard = types.InlineKeyboardMarkup()
+    kb1 = types.InlineKeyboardButton(text="Перенос Стиля", callback_data="text1")
+    kb2 = types.InlineKeyboardButton(text="Повышение разрешения", callback_data="text2")
+    keyboard.add(kb1, kb2)
     bot.send_message(message.chat.id,
-                     '''Привет, я могу перенести стиль с одной картинки на другую.
+                     '''Привет, я могу перенести стиль с одной картинки на другую
                      
-Чтобы начать, пришли картинку, на которую будем переносить стиль.
+ИЛИ
 
-Подробности по команде /help''')
+Повысить разрешение и четкость картинки
+
+Подробности по команде /help''',reply_markup=keyboard)
 
 
 @bot.message_handler(commands=['help'])
 def help_message(message):
+
+
     bot.send_message(message.chat.id,
                      '''1) Картинки обрезаются до квадратных,размерность понижается
                      
@@ -38,13 +47,29 @@ def help_message(message):
                      ''')
 
 
-@bot.message_handler(content_types=['photo'])
-def handle(message):
-    cid = message.chat.id
+@bot.callback_query_handler(func=lambda c:True)
+def ans(c):
+    cid = c.message.chat.id
+    keyboard = types.InlineKeyboardMarkup()
+    if c.data == "text1":
+        bot.send_message(cid, "Пришли картинку, на которую будем переносить стиль", reply_markup=keyboard)
+        bot.register_next_step_handler(c.message, first_photo)
+    elif c.data == "text2":
+        bot.send_message(cid, "Пришли картинку для повышения разрешения", reply_markup=keyboard)
+        bot.register_next_step_handler(c.message, upgrade)
 
-    photos['content'] = save_image_from_message(message)
-    bot.send_message(cid, 'Отлично, теперь пришли фото со стилем')
-    bot.register_next_step_handler(message, second_photo)
+
+#@bot.message_handler(content_types=['photo'])
+def first_photo(message):
+    try:
+        cid = message.chat.id
+
+        photos['content'] = save_image_from_message(message)
+        bot.send_message(cid, 'Отлично, теперь пришли фото со стилем')
+        bot.register_next_step_handler(message, second_photo)
+    except:
+        bot.send_message(message.chat.id,'Помоему ты сделал что-то не так, давай сначала')
+        bot.register_next_step_handler(message, first_photo)
 
 
 def second_photo(message):
@@ -60,12 +85,46 @@ def second_photo(message):
         res = open('tmp/res.jpg', 'rb')
 
         bot.send_photo(cid, res)
-        bot.send_message(cid, 'Готово, пришли новое фото если хочешь повторить')
 
         cleanup_remove_image(photos['content'])
         cleanup_remove_image(photos['style'])
+
+        keyboard = types.InlineKeyboardMarkup()
+        kb1 = types.InlineKeyboardButton(text="Перенос Стиля", callback_data="text1")
+        kb2 = types.InlineKeyboardButton(text="Повышение разрешения", callback_data="text2")
+        keyboard.add(kb1, kb2)
+
+        bot.send_message(cid, 'Готово', reply_markup=keyboard)
+
     except:
-        bot.send_message(message.chat.id,'Помоему ты сделал что-то не так, давай сначала')
+        bot.send_message(message.chat.id,'Помоему ты сделал что-то не так, пришли фото со стилем')
+        bot.register_next_step_handler(message, second_photo)
+
+
+def upgrade(message):
+    try:
+        cid = message.chat.id
+        image_id = get_image_id_from_message(message)
+
+        # prepare image for downlading
+        file_path = bot.get_file(image_id).file_path
+
+        # generate image download url
+        image_url = "https://api.telegram.org/file/bot{0}/{1}".format(TOKEN, file_path)
+        res = upscale.up(image_url)
+        bot.send_photo(cid, res)
+        bot.send_message(cid, res)
+
+        keyboard = types.InlineKeyboardMarkup()
+        kb1 = types.InlineKeyboardButton(text="Перенос Стиля", callback_data="text1")
+        kb2 = types.InlineKeyboardButton(text="Повышение разрешения", callback_data="text2")
+        keyboard.add(kb1, kb2)
+
+        bot.send_message(cid, 'Готово', reply_markup=keyboard)
+    except:
+        bot.send_message(cid, 'Что-то пошло не так, повтори предидущий шаг')
+        bot.register_next_step_handler(message, upgrade)
+
 
 
 # ----------- Helper functions ---------------

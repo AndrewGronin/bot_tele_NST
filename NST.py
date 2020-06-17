@@ -223,7 +223,7 @@ class NST(nn.Module):
 
                 return style_score + content_score
 
-            if run[0] == num_steps and (closure().item() > 50):
+            if run[0] == num_steps and (closure().item() > 50000):
                 num_steps += 100
 
             optimizer.step(closure)
@@ -239,6 +239,6 @@ class NST(nn.Module):
         input_img = content_img.clone()
 
         output = self.run_style_transfer(
-            content_img, style_img, input_img, num_steps=500)
+            content_img, style_img, input_img, num_steps=50)
 
         self.imsave(output)
