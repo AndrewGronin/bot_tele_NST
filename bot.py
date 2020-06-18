@@ -2,16 +2,16 @@
 
 import telebot
 import datetime
-import requests
+#import requests
 import urllib.request
-import subprocess
+#import subprocess
 import os
 from NST import *
 from config import *
 from telebot import types
 import upscale
-from flask import Flask, request
-import logging
+#from flask import Flask, request
+#import logging
 
 bot = telebot.TeleBot(TOKEN)
 

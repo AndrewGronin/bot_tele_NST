@@ -1,5 +1,5 @@
 from PIL import Image
-import urllib.request
+#import urllib.request
 
 import torch
 import torch.nn as nn
@@ -107,10 +107,10 @@ class NST(nn.Module):
 
     def get_style_model_and_losses(self, style_img, content_img,
                                    ):
-        # cnn = models.vgg19(pretrained=False)
-        # cnn.load_state_dict(torch.load('vgg.pth'))
-        # cnn = cnn.features.to(self.device).eval()
-        # cnn = copy.deepcopy(cnn)
+        #cnn = models.vgg19(pretrained=False)
+        #cnn.load_state_dict(torch.load('vgg.pth'))
+        #cnn = cnn.features.to(self.device).eval()
+        #cnn = copy.deepcopy(cnn)
         cnn = models.vgg19(pretrained=True).features.to(self.device).eval()
         # normalization module
         normalization = Normalization(self.cnn_normalization_mean_default, self.cnn_normalization_std_default).to(
@@ -223,8 +223,8 @@ class NST(nn.Module):
 
                 return style_score + content_score
 
-            if run[0] == num_steps and (closure().item() > 50000):
-                num_steps += 100
+            if run[0] == num_steps and (closure().item() > 50):
+                num_steps += 50
 
             optimizer.step(closure)
 
@@ -239,6 +239,6 @@ class NST(nn.Module):
         input_img = content_img.clone()
 
         output = self.run_style_transfer(
-            content_img, style_img, input_img, num_steps=50)
+            content_img, style_img, input_img, num_steps=500)
 
         self.imsave(output)
