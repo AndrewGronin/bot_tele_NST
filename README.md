@@ -1,4 +1,5 @@
 # bot_tele_NST
+Telegram Bot, that can Transfer Style with Neural Networks and increase resolution of pictures with GANs
 ### Структура
 
 **bot.py** - логика бота и вспомогательные функции
