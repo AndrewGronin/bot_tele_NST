@@ -16,7 +16,7 @@ requests==2.23.0
 six==1.15.0
 https://download.pytorch.org/whl/cpu/torch-1.0.1.post2-cp37-cp37m-linux_x86_64.whl
 torchvision==0.2.2
-urllib3==1.25.9
+urllib3==1.26.5
 Werkzeug==1.0.1
 wincertstore==0.2
 
